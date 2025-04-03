@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
   Container,
   Grid,
@@ -11,7 +11,6 @@ import {
   Rating,
   Button,
   TextField,
-  Divider,
   Chip,
   Alert,
 } from '@mui/material';
@@ -21,7 +20,6 @@ import { useAuth } from '../context/AuthContext';
 
 const LocationDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [location, setLocation] = useState<Location | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);

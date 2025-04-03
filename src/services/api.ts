@@ -1,5 +1,5 @@
 import axios, { InternalAxiosRequestConfig } from 'axios';
-import { User, Location, Review, AuthResponse } from '../types';
+import { Location, Review, AuthResponse } from '../types';
 
 const API_URL = 'http://localhost:5000/api';
 

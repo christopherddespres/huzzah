@@ -1,22 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
   Typography,
   Button,
-  Box,
   IconButton,
   Menu,
   MenuItem,
+  Box,
 } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar: React.FC = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -43,29 +43,22 @@ const Navbar: React.FC = () => {
             flexGrow: 1,
             textDecoration: 'none',
             color: 'inherit',
-            fontFamily: '"MedievalSharp", cursive',
           }}
         >
           Huzzah!
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button
-            color="inherit"
-            component={RouterLink}
-            to="/locations"
-          >
-            Locations
-          </Button>
-
           {isAuthenticated ? (
             <>
-              <Button
-                color="inherit"
-                component={RouterLink}
-                to="/locations/create"
-              >
+              <Button color="inherit" component={RouterLink} to="/locations">
+                Locations
+              </Button>
+              <Button color="inherit" component={RouterLink} to="/locations/create">
                 Add Location
+              </Button>
+              <Button color="inherit" component={RouterLink} to="/profile">
+                Profile
               </Button>
               <IconButton
                 size="large"
@@ -92,30 +85,15 @@ const Navbar: React.FC = () => {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem
-                  component={RouterLink}
-                  to="/profile"
-                  onClick={handleClose}
-                >
-                  Profile
-                </MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </Menu>
             </>
           ) : (
             <>
-              <Button
-                color="inherit"
-                component={RouterLink}
-                to="/login"
-              >
+              <Button color="inherit" component={RouterLink} to="/login">
                 Login
               </Button>
-              <Button
-                color="inherit"
-                component={RouterLink}
-                to="/register"
-              >
+              <Button color="inherit" component={RouterLink} to="/register">
                 Register
               </Button>
             </>
