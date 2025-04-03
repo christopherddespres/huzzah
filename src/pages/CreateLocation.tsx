@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { locationsApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { CreateLocationInput } from '../types';
+import { Location } from '../types';
 
 const locationTypes = ['Tavern', 'Dungeon', 'Castle', 'Temple', 'City', 'Wilderness'];
 
@@ -19,12 +19,12 @@ const CreateLocation: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState<string>('');
-  const [formData, setFormData] = useState<CreateLocationInput>({
+  const [formData, setFormData] = useState({
     name: '',
     description: '',
-    type: 'Tavern',
+    type: 'Tavern' as Location['type'],
     world: '',
-    coordinates: undefined,
+    coordinates: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,12 +43,15 @@ const CreateLocation: React.FC = () => {
     }
 
     try {
-      const locationData: CreateLocationInput = {
+      const locationData = {
         name: formData.name,
         description: formData.description,
         type: formData.type,
         world: formData.world,
-        coordinates: formData.coordinates,
+        coordinates: formData.coordinates ? {
+          latitude: parseFloat(formData.coordinates.split(',')[0]),
+          longitude: parseFloat(formData.coordinates.split(',')[1])
+        } : undefined
       };
 
       await locationsApi.create(locationData);
@@ -120,21 +123,18 @@ const CreateLocation: React.FC = () => {
               fullWidth
               label="Coordinates (latitude,longitude)"
               name="coordinates"
-              value={formData.coordinates ? `${formData.coordinates.latitude},${formData.coordinates.longitude}` : ''}
+              value={formData.coordinates}
               onChange={(e) => {
                 const [lat, lon] = e.target.value.split(',');
                 if (lat && lon) {
                   setFormData((prev) => ({
                     ...prev,
-                    coordinates: {
-                      latitude: parseFloat(lat),
-                      longitude: parseFloat(lon),
-                    },
+                    coordinates: `${lat},${lon}`,
                   }));
                 } else {
                   setFormData((prev) => ({
                     ...prev,
-                    coordinates: undefined,
+                    coordinates: '',
                   }));
                 }
               }}
