@@ -23,6 +23,17 @@ export interface Location {
   image?: string;
 }
 
+export interface CreateLocationInput {
+  name: string;
+  description: string;
+  type: 'Tavern' | 'Dungeon' | 'Castle' | 'Temple' | 'City' | 'Wilderness';
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
+  world: string;
+}
+
 export interface Review {
   id: string;
   location: Location;

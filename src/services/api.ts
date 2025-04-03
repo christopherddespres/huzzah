@@ -1,5 +1,5 @@
 import axios, { InternalAxiosRequestConfig } from 'axios';
-import { Location, Review, AuthResponse } from '../types';
+import { Location, Review, AuthResponse, CreateLocationInput } from '../types';
 
 const API_URL = 'http://localhost:5000/api';
 
@@ -61,7 +61,7 @@ export const locationsApi = {
     return response.data;
   },
 
-  create: async (locationData: Omit<Location, 'id' | 'createdBy' | 'averageRating' | 'createdAt'>): Promise<Location> => {
+  create: async (locationData: CreateLocationInput): Promise<Location> => {
     const response = await api.post('/locations', locationData);
     return response.data;
   },

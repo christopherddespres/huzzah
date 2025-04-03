@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
-  Box,
   Typography,
   TextField,
   Button,
@@ -12,28 +11,28 @@ import {
 } from '@mui/material';
 import { locationsApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { Location } from '../types';
+import { CreateLocationInput } from '../types';
 
 const locationTypes = ['Tavern', 'Dungeon', 'Castle', 'Temple', 'City', 'Wilderness'];
-const worlds = ['Forgotten Realms', 'Eberron', 'Ravnica', 'Exandria', 'Custom'];
 
 const CreateLocation: React.FC = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [error, setError] = useState<string>('');
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateLocationInput>({
     name: '',
     description: '',
-    type: '' as Location['type'],
+    type: 'Tavern',
     world: '',
-    coordinates: '',
+    coordinates: undefined,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,12 +43,12 @@ const CreateLocation: React.FC = () => {
     }
 
     try {
-      const locationData = {
-        ...formData,
-        coordinates: formData.coordinates ? {
-          latitude: parseFloat(formData.coordinates.split(',')[0]),
-          longitude: parseFloat(formData.coordinates.split(',')[1])
-        } : undefined
+      const locationData: CreateLocationInput = {
+        name: formData.name,
+        description: formData.description,
+        type: formData.type,
+        world: formData.world,
+        coordinates: formData.coordinates,
       };
 
       await locationsApi.create(locationData);
@@ -60,118 +59,95 @@ const CreateLocation: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Typography
-          component="h1"
-          variant="h3"
-          sx={{ fontFamily: '"MedievalSharp", cursive' }}
-        >
-          Create New Location
-        </Typography>
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                id="name"
-                label="Location Name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                id="description"
-                label="Description"
-                name="description"
-                multiline
-                rows={4}
-                value={formData.description}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                required
-                fullWidth
-                select
-                id="type"
-                label="Type"
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-              >
-                {locationTypes.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                required
-                fullWidth
-                select
-                id="world"
-                label="World"
-                name="world"
-                value={formData.world}
-                onChange={handleChange}
-              >
-                {worlds.map((world) => (
-                  <MenuItem key={world} value={world}>
-                    {world}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                id="coordinates"
-                label="Coordinates (optional)"
-                name="coordinates"
-                value={formData.coordinates}
-                onChange={handleChange}
-                helperText="Format: X, Y, Z or any other coordinate system"
-              />
-            </Grid>
+    <Container maxWidth="md">
+      <Typography variant="h4" component="h1" gutterBottom>
+        Create New Location
+      </Typography>
+      {error && <Alert severity="error">{error}</Alert>}
+      <form onSubmit={handleSubmit}>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <TextField
+              required
+              fullWidth
+              label="Name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+            />
           </Grid>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-          >
-            Create Location
-          </Button>
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={() => navigate('/locations')}
-          >
-            Cancel
-          </Button>
-        </Box>
-      </Box>
+          <Grid item xs={12}>
+            <TextField
+              required
+              fullWidth
+              multiline
+              rows={4}
+              label="Description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              select
+              label="Type"
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+            >
+              {locationTypes.map((type) => (
+                <MenuItem key={type} value={type}>
+                  {type}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              label="World"
+              name="world"
+              value={formData.world}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Coordinates (latitude,longitude)"
+              name="coordinates"
+              value={formData.coordinates ? `${formData.coordinates.latitude},${formData.coordinates.longitude}` : ''}
+              onChange={(e) => {
+                const [lat, lon] = e.target.value.split(',');
+                if (lat && lon) {
+                  setFormData((prev) => ({
+                    ...prev,
+                    coordinates: {
+                      latitude: parseFloat(lat),
+                      longitude: parseFloat(lon),
+                    },
+                  }));
+                } else {
+                  setFormData((prev) => ({
+                    ...prev,
+                    coordinates: undefined,
+                  }));
+                }
+              }}
+              helperText="Optional. Format: latitude,longitude"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Button type="submit" variant="contained" color="primary">
+              Create Location
+            </Button>
+          </Grid>
+        </Grid>
+      </form>
     </Container>
   );
 };
